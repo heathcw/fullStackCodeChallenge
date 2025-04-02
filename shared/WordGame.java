@@ -6,6 +6,7 @@ public class WordGame {
 
     private final String word;
     private ArrayList<Character> guessWord;
+    private ArrayList<Character> lettersGuessed = new ArrayList<>();
 
     public WordGame(String newWord) {
         this.word = newWord;
@@ -17,6 +18,14 @@ public class WordGame {
 
     public ArrayList<Character> getGuessWord() {
         return this.guessWord;
+    }
+
+    public void addLetter(Character c) {
+        lettersGuessed.add(c);
+    }
+
+    public ArrayList<Character> getLettersGuessed() {
+        return this.lettersGuessed;
     }
 
 }
