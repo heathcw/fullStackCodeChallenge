@@ -13,6 +13,7 @@ public class GameClient {
     private final WordRequest randomWord = new WordRequest(Difficulty.EASY);
     private final WordGame game;
     private State gameState = State.WAITING;
+    private boolean allowHint = true;
 
     public GameClient() {
         game = new WordGame("word");
@@ -27,7 +28,7 @@ public class GameClient {
                 case "start" -> start(params);
                 case "guess" -> guess(params);
                 case "retry" -> retry(params);
-                case "debug" -> game.getGuessWord().toString();
+                case "hint" -> hint();
                 case "quit" -> "quit";
                 default -> help();
             };
@@ -50,6 +51,7 @@ public class GameClient {
             String word = randomWord.getRandomWord();
             game.newWord(word);
             gameState = State.STARTED;
+            allowHint = true;
             return printWord();
         }
 
@@ -60,9 +62,13 @@ public class GameClient {
         if (!assertStarted()) {
             throw new ResponseException("You must start a game");
         }
-        if (params.length == 1 && params[0].length() == 1) {
-            game.addLetter(params[0].charAt(0));
-            return update(params[0].charAt(0));
+        if (params.length == 1 && params[0].length() == 1 && params[0].matches("[a-zA-Z]+")) {
+            Character c = params[0].charAt(0);
+            if (game.getLettersGuessed().contains(c)) {
+                return "You already guessed that letter!";
+            }
+            game.addLetter(c);
+            return update(c);
         }
 
         throw new ResponseException("Expected: <LETTER>");
@@ -81,10 +87,26 @@ public class GameClient {
             }
             String word = randomWord.getRandomWord();
             game.newWord(word);
-            return "New Word";
+            allowHint = true;
+            return "New Word\n" + printWord();
         }
 
         throw new ResponseException("Expected: <EASY|MEDIUM|HARD>");
+    }
+
+    public String hint() throws ResponseException {
+        if (!assertStarted()) {
+            throw new ResponseException("You must start a game");
+        }
+        if (allowHint) {
+            for (Character c : game.getGuessWord()) {
+                if (!game.getLettersGuessed().contains(c)) {
+                    allowHint = false;
+                    return "Try: " + c;
+                }
+            }
+        }
+        return "No hint";
     }
 
     public String help() {
@@ -147,12 +169,12 @@ public class GameClient {
 
     private String lose() {
         gameState = State.WAITING;
-        return "You Lose!";
+        return "You Lose!\n" + help();
     }
 
     private String win() {
         gameState = State.WAITING;
-        return "You Win!";
+        return "You Win!\n" + help();
     }
 
     private boolean assertStarted() {

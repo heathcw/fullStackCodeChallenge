@@ -33,6 +33,7 @@ public class WordGame {
             guessWord.add(newWord.charAt(i));
         }
         lettersGuessed = new ArrayList<>();
+        mistakesLeft = 7;
     }
 
     public void mistake() {
