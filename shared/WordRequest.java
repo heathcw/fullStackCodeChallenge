@@ -6,7 +6,10 @@ import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.net.http.HttpHeaders;
 import java.io.IOException;
+import java.util.List;
+
 import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 
 public class WordRequest {
 
@@ -40,8 +43,12 @@ public class WordRequest {
                 String jsonResponse = response.body();
 
                 Gson serializer = new Gson();
+                List<String> wordList = serializer.fromJson(jsonResponse, new TypeToken<List<String>>(){}.getType());
 
-                return serializer.fromJson(jsonResponse, String.class);
+                if (!wordList.isEmpty()) {
+                    return wordList.getFirst();
+                }
+                return "";
             } else {
                 System.out.println("Error: " + response.statusCode());
                 return null;

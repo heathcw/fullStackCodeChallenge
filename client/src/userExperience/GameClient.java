@@ -25,7 +25,7 @@ public class GameClient {
             var params = Arrays.copyOfRange(tokens, 1, tokens.length);
             return switch (cmd) {
                 case "guess" -> guess(params);
-                case "retry" -> retry();
+                case "retry" -> retry(params);
                 case "debug" -> game.getGuessWord().toString();
                 case "quit" -> "quit";
                 default -> help();
