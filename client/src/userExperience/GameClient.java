@@ -1,6 +1,7 @@
 package userExperience;
 
 import exception.ResponseException;
+import shared.Difficulty;
 import shared.WordGame;
 import shared.WordRequest;
 
@@ -9,7 +10,7 @@ import java.util.Arrays;
 
 public class GameClient {
 
-    private final WordRequest randomWord = new WordRequest();
+    private final WordRequest randomWord = new WordRequest(Difficulty.EASY);
     private final WordGame game;
 
     public GameClient() {
@@ -43,16 +44,26 @@ public class GameClient {
         throw new ResponseException("Expected: <LETTER>");
     }
 
-    public String retry(){
-        String word = randomWord.getRandomWord();
-        game.newWord(word);
-        return "New Word";
+    public String retry(String... params) throws ResponseException{
+        if (params.length == 1) {
+            switch (params[0]) {
+                case "easy" -> randomWord.updateDifficulty(Difficulty.EASY);
+                case "medium" -> randomWord.updateDifficulty(Difficulty.MEDIUM);
+                case "hard" -> randomWord.updateDifficulty(Difficulty.HARD);
+                default -> throw new ResponseException("Expected: <EASY|MEDIUM|HARD>");
+            }
+            String word = randomWord.getRandomWord();
+            game.newWord(word);
+            return "New Word";
+        }
+
+        throw new ResponseException("Expected: <EASY|MEDIUM|HARD>");
     }
 
     public String help() {
         return """
                - guess <LETTER>
-               - retry
+               - retry <EASY|MEDIUM|HARD>
                - quit
                - help
                """;
