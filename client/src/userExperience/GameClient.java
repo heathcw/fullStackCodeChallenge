@@ -2,16 +2,19 @@ package userExperience;
 
 import exception.ResponseException;
 import shared.WordGame;
+import shared.WordRequest;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 
 public class GameClient {
 
+    private final WordRequest randomWord = new WordRequest();
     private final WordGame game;
 
     public GameClient() {
-        game = new WordGame("test");
+        String word = randomWord.getRandomWord();
+        game = new WordGame(word);
     }
 
     public String eval(String input) {
@@ -22,6 +25,7 @@ public class GameClient {
             return switch (cmd) {
                 case "guess" -> guess(params);
                 case "retry" -> retry();
+                case "debug" -> game.getGuessWord().toString();
                 case "quit" -> "quit";
                 default -> help();
             };
@@ -40,7 +44,8 @@ public class GameClient {
     }
 
     public String retry(){
-        game.newWord("random");
+        String word = randomWord.getRandomWord();
+        game.newWord(word);
         return "New Word";
     }
 
