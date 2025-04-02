@@ -12,10 +12,10 @@ public class GameClient {
 
     private final WordRequest randomWord = new WordRequest(Difficulty.EASY);
     private final WordGame game;
+    private State gameState = State.WAITING;
 
     public GameClient() {
-        String word = randomWord.getRandomWord();
-        game = new WordGame(word);
+        game = new WordGame("word");
     }
 
     public String eval(String input) {
@@ -24,6 +24,7 @@ public class GameClient {
             var cmd = (tokens.length > 0) ? tokens[0] : "help";
             var params = Arrays.copyOfRange(tokens, 1, tokens.length);
             return switch (cmd) {
+                case "start" -> start(params);
                 case "guess" -> guess(params);
                 case "retry" -> retry(params);
                 case "debug" -> game.getGuessWord().toString();
@@ -31,20 +32,46 @@ public class GameClient {
                 default -> help();
             };
         } catch (Exception e) {
-            throw new RuntimeException(e);
+            return e.getMessage();
         }
     }
 
-    public String guess(String... params) throws ResponseException{
+    public String start(String... params) throws ResponseException {
+        if (assertStarted()) {
+            throw new ResponseException("You already started");
+        }
+        if (params.length == 1) {
+            switch (params[0]) {
+                case "easy" -> randomWord.updateDifficulty(Difficulty.EASY);
+                case "medium" -> randomWord.updateDifficulty(Difficulty.MEDIUM);
+                case "hard" -> randomWord.updateDifficulty(Difficulty.HARD);
+                default -> throw new ResponseException("Expected: <EASY|MEDIUM|HARD>");
+            }
+            String word = randomWord.getRandomWord();
+            game.newWord(word);
+            gameState = State.STARTED;
+            return printWord();
+        }
+
+        throw new ResponseException("Expected: <EASY|MEDIUM|HARD>");
+    }
+
+    public String guess(String... params) throws ResponseException {
+        if (!assertStarted()) {
+            throw new ResponseException("You must start a game");
+        }
         if (params.length == 1 && params[0].length() == 1) {
             game.addLetter(params[0].charAt(0));
-            return "You Guessed: " + params[0];
+            return update(params[0].charAt(0));
         }
 
         throw new ResponseException("Expected: <LETTER>");
     }
 
     public String retry(String... params) throws ResponseException{
+        if (!assertStarted()) {
+            throw new ResponseException("You must start a game");
+        }
         if (params.length == 1) {
             switch (params[0]) {
                 case "easy" -> randomWord.updateDifficulty(Difficulty.EASY);
@@ -61,15 +88,22 @@ public class GameClient {
     }
 
     public String help() {
-        return """
+        if (gameState.equals(State.STARTED)) {
+            return """
                - guess <LETTER>
                - retry <EASY|MEDIUM|HARD>
                - quit
                - help
                """;
+        }
+        return """
+               - start <EASY|MEDIUM|HARD>
+               - quit
+               - help
+               """;
     }
 
-    public String printWord() {
+    private String printWord() {
         ArrayList<Character> word = game.getGuessWord();
         ArrayList<Character> guessed = game.getLettersGuessed();
         ArrayList<Character> combined = new ArrayList<>();
@@ -86,5 +120,42 @@ public class GameClient {
             builder.append(c).append(" ");
         }
         return builder.toString();
+    }
+
+    private String update(Character c) {
+        StringBuilder builder = new StringBuilder();
+        builder.append("You Guessed: ").append(c).append('\n');
+        if (game.getGuessWord().contains(c)) {
+            builder.append("Correct!");
+        } else {
+            builder.append("Incorrect!");
+            game.mistake();
+            if (game.getMistakesLeft() == 0) {
+                builder.append('\n').append(lose());
+                return builder.toString();
+            }
+        }
+        builder.append('\n').append("Mistakes Left: ").append(game.getMistakesLeft());
+        builder.append('\n').append(printWord());
+
+        if (!printWord().contains("*")) {
+            builder.append('\n').append(win());
+        }
+
+        return builder.toString();
+    }
+
+    private String lose() {
+        gameState = State.WAITING;
+        return "You Lose!";
+    }
+
+    private String win() {
+        gameState = State.WAITING;
+        return "You Win!";
+    }
+
+    private boolean assertStarted() {
+        return gameState.equals(State.STARTED);
     }
 }

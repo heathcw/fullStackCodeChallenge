@@ -6,6 +6,7 @@ public class WordGame {
 
     private ArrayList<Character> guessWord;
     private ArrayList<Character> lettersGuessed = new ArrayList<>();
+    private int mistakesLeft = 7;
 
     public WordGame(String newWord) {
         guessWord = new ArrayList<>();
@@ -32,5 +33,13 @@ public class WordGame {
             guessWord.add(newWord.charAt(i));
         }
         lettersGuessed = new ArrayList<>();
+    }
+
+    public void mistake() {
+        mistakesLeft--;
+    }
+
+    public int getMistakesLeft() {
+        return mistakesLeft;
     }
 }
