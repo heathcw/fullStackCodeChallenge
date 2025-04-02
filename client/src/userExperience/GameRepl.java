@@ -20,6 +20,8 @@ public class GameRepl {
             try {
                 result = client.eval(line);
                 System.out.print(result);
+                System.out.println();
+                System.out.print(client.printWord());
             } catch (Throwable e) {
                 var msg = e.toString();
                 System.out.print(msg);

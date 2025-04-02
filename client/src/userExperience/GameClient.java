@@ -3,6 +3,7 @@ package userExperience;
 import exception.ResponseException;
 import shared.WordGame;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 
 public class GameClient {
@@ -43,5 +44,24 @@ public class GameClient {
                - quit
                - help
                """;
+    }
+
+    public String printWord() {
+        ArrayList<Character> word = game.getGuessWord();
+        ArrayList<Character> guessed = game.getLettersGuessed();
+        ArrayList<Character> combined = new ArrayList<>();
+        StringBuilder builder = new StringBuilder();
+        for (Character c : word) {
+            if (guessed.contains(c)) {
+                combined.add(c);
+            }
+            else {
+                combined.add('*');
+            }
+        }
+        for (Character c : combined) {
+            builder.append(c).append(" ");
+        }
+        return builder.toString();
     }
 }
