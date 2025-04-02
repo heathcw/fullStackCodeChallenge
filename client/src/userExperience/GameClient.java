@@ -114,6 +114,7 @@ public class GameClient {
             return """
                - guess <LETTER>
                - retry <EASY|MEDIUM|HARD>
+               - hint
                - quit
                - help
                """;
