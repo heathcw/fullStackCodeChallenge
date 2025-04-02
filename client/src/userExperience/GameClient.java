@@ -5,11 +5,11 @@ import shared.WordGame;
 
 import java.util.Arrays;
 
-public class gameClient {
+public class GameClient {
 
     private WordGame game;
 
-    public gameClient() {
+    public GameClient() {
         game = new WordGame("test");
     }
 
