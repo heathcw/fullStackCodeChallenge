@@ -8,7 +8,7 @@ import java.util.Arrays;
 
 public class GameClient {
 
-    private WordGame game;
+    private final WordGame game;
 
     public GameClient() {
         game = new WordGame("test");
@@ -21,6 +21,7 @@ public class GameClient {
             var params = Arrays.copyOfRange(tokens, 1, tokens.length);
             return switch (cmd) {
                 case "guess" -> guess(params);
+                case "retry" -> retry();
                 case "quit" -> "quit";
                 default -> help();
             };
@@ -38,9 +39,15 @@ public class GameClient {
         throw new ResponseException("Expected: <LETTER>");
     }
 
+    public String retry(){
+        game.newWord("random");
+        return "New Word";
+    }
+
     public String help() {
         return """
                - guess <LETTER>
+               - retry
                - quit
                - help
                """;

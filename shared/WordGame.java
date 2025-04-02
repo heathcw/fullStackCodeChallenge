@@ -4,15 +4,13 @@ import java.util.ArrayList;
 
 public class WordGame {
 
-    private final String word;
     private ArrayList<Character> guessWord;
     private ArrayList<Character> lettersGuessed = new ArrayList<>();
 
     public WordGame(String newWord) {
-        this.word = newWord;
         guessWord = new ArrayList<>();
-        for (int i = 0; i < word.length(); i++) {
-            guessWord.add(word.charAt(i));
+        for (int i = 0; i < newWord.length(); i++) {
+            guessWord.add(newWord.charAt(i));
         }
     }
 
@@ -28,4 +26,11 @@ public class WordGame {
         return this.lettersGuessed;
     }
 
+    public void newWord(String newWord) {
+        guessWord = new ArrayList<>();
+        for (int i = 0; i < newWord.length(); i++) {
+            guessWord.add(newWord.charAt(i));
+        }
+        lettersGuessed = new ArrayList<>();
+    }
 }
